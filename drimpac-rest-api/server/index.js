@@ -22,6 +22,7 @@ app.use(
 const authApi = require('./routes/authAPI');
 const drimpacApi = require('./routes/drimpacAPI');
 const unitManagementApi = require('./routes/unitManagementAPI');
+const epe = require('./routes/epe-test')
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
