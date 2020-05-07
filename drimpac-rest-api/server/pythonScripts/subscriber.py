@@ -3,7 +3,7 @@ import paramiko
 import json
 
 """
-This subscriber receives and prints the day_ahead prices for th users .
+This subscriber receives and prints the day_ahead prices for the users .
 """
 
 broker  =  "localhost"
