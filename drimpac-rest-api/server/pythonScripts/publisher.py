@@ -7,8 +7,8 @@ import time
 import json
 
 """
-The publisher will publish a message whixh will be received from a subscriber.
-This publisher publishes the usernames for which the retail prices must be calculated.
+The publisher will publish a message which will be received from a subscriber.
+This publisher publishes the user names for which the retail prices must be calculated.
 """
 
 parser = argparse.ArgumentParser()
