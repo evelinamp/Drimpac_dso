@@ -74,7 +74,7 @@ def connect_to_sftp():
     prices  = pd.read_csv('prices.csv')
     index   = pd.read_csv('index.csv')
 
-    # File processingin order for the values to be read as floats. (Values are provided as strings from MIWenergia)
+    # File processing in order for the values to be read as floats. (Values are provided as strings from MIWenergia)
     index['PMD'] = index['PMD'].str.replace(',','.')
     index['PC']  = index['PC'].str.replace(',','.')
     index['TOS']  = index['TOS'].str.replace(',','.')
