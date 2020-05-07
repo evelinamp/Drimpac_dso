@@ -6,8 +6,8 @@ const axios = require('axios');
 const fs = require('fs');
 const request = require('request');
 
-
-cron.schedule('* * * * *', () => {
+// Run every day at 23:00
+cron.schedule('* 23 * * *', () => {
 
     const {
         mongoUser,
@@ -19,7 +19,10 @@ cron.schedule('* * * * *', () => {
      const db_name = 'drimpac';
      let url = 'mongodb://' + mongoUser + ':' + mongoPass + '@' + mongoIP + ':' + mongoPort + '/' + db_name + '?authSource=admin';
     
-   MongoClient.connect(url, function (error, client) {
+   MongoClient.connect(url, {
+    useUnifiedTopology: true,
+    useNewUrlParser: true,
+    }, function (error, client) {
 
     // 'mongodb://' + mongoUser + ':' + mongoPass + '@' + mongoIP + ':' + mongoPort + '/' + db_name + '?authSource=admin';
     if (error) {
@@ -36,7 +39,7 @@ cron.schedule('* * * * *', () => {
             // console.log(users[i].customer)
             user.push(users[i].customer)
 
-            shell.exec('python ' + __dirname + '/../pythonScripts/publisher.py --h 160.40.49.197 --list ' + user[i]);
+            shell.exec('python ' + __dirname + '/../pythonScripts/publisher.py --h ' + process.env.SIMULATION_MACHINE + ' --list ' + user[i]);
             const subscriber = shell.exec('python ' + __dirname + '/../pythonScripts/subscriber.py');
             
           
@@ -45,14 +48,12 @@ cron.schedule('* * * * *', () => {
             } else {
                var data = JSON.parse(subscriber)
                 
-
             }
 
         
             priceValues = new Array;
             var index = [];
-            var b = [];
-            
+            var interval = [];
             
 
             for (var x in data[0].Day_Ahead_Prices) {
@@ -66,12 +67,11 @@ cron.schedule('* * * * *', () => {
 
             }); 
 
-            
 
             for (let i = 0; i <24; i++) {
         
                 priceValues[i] = data[0].Day_Ahead_Prices[index[i]];
-                b[i] = {
+                interval[i] = {
 
                     "duration": "60",
                     "uid": i+1,
@@ -89,14 +89,17 @@ cron.schedule('* * * * *', () => {
                 "event_notification": "2020-01-30T02:14:12",
                 "signalName": "ELECTRICITY_PRICE",
                 "signalType": "price",
-                "intervals" : b
-        
-             }
-            
-            
-             const userJSON = JSON.stringify(jsonData, null, 4)
-             fs.writeFileSync('msg.json', userJSON)
-           
+                "intervals" : interval
+            }
+             
+            // Store electricity prices in db
+             db.collection('DA_prices').insertOne({ jsonData });
+              
+             //const userJSON = JSON.stringify(jsonData, null, 4)
+             //fs.writeFileSync('msg.json', userJSON)
+
+
+            // Create events
             request.post({
                  url: "http://160.40.49.244:8000/vtn_data_create",
                  method: "POST",
@@ -110,6 +113,7 @@ cron.schedule('* * * * *', () => {
                 console.log(`statusCode: ${res.statusCode}`)
                 console.log(body)
                 })
+                
            
             }
          })
